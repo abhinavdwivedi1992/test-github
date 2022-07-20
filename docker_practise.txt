@@ -1,0 +1,200 @@
+﻿Docker --- Containerization Engine software 
+
+1) Install docker on ubuntu
+# apt update 
+# apt install docker.io  / docker.ce / docker.ee
+  use this link
+	https://www.linode.com/docs/applications/containers/install-docker-ce-ubuntu-1804/
+
+2) Verify the installation 
+# docker --version
+# docker info 
+
+3) docker image: a template which contains application and it's runtime environment (RE)
+    docker image can contain a running O/S as well.
+
+4) Download the image from dockerhub image registry
+# docker pull imagename
+# docker search imagename
+# docker inspect imagename
+# docker images
+
+
+5) To run a basic hello-wold container
+# docker run hello-world 
+
+6) To see all running containers in your system
+# docker ps 
+
+7) To see all containers ( running , exited, stopped) in your system
+# docker ps -a 
+
+8) To remove the container
+# docker rm containername or containerid
+
+9) To remove the image
+# docker rmi imagename
+
+10) Create customized image 
+# vim Dockerfile
+FROM centos
+MAINTAINER vishal@ap2v.com
+RUN yum install -y httpd
+COPY index.html /var/www/html/index.html
+CMD ["/usr/bin/httpd", "-D", "FOREGROUND"]
+EXPOSE 80
+
+To build the new image from the dockerfile you created 
+# docker build -t myimage:latest . 
+
+To verify
+# docker images
+
+
+11) To access container with /bin/bash as command
+# docker run ubuntu
+the output of docker ps -a will show that container run and exited automatically
+This means when a docker image is created with "/bin/bash" as command to be run at the time of container creation,
+then the container doesn't work in the normal scenario, rather there is a seperate command to run the contianner.
+
+# docker run -it imagename
+# docker run -it ubuntu
+################################################################################
+root@ip-172-31-14-204:~# docker images
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+ubuntu              latest              7698f282e524        3 days ago          69.9MB
+
+root@ip-172-31-14-204:~# docker run -it ubuntu
+root@28f8a6a3376e:/#      
+root@28f8a6a3376e:/# 
+root@28f8a6a3376e:/# 
+root@28f8a6a3376e:/# 
+root@28f8a6a3376e:/# exit 
+exit
+
+# To see the running containers
+root@ip-172-31-14-204:~# docker ps 
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+
+# To see all the containers ( running and stopped )
+root@ip-172-31-14-204:~# docker ps -a 
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                     PORTS               NAMES
+28f8a6a3376e        ubuntu              "/bin/bash"         11 seconds ago      Exited (0) 3 seconds ago                       laughing_nobel
+
+# To start the container again
+root@ip-172-31-14-204:~# docker start laughing_nobel 
+laughing_nobel
+
+# To verify
+root@ip-172-31-14-204:~# docker ps 
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+28f8a6a3376e        ubuntu              "/bin/bash"         18 seconds ago      Up 2 seconds                            laughing_nobel
+
+# To attach to the running container again
+root@ip-172-31-14-204:~# docker attach laughing_nobel 
+root@28f8a6a3376e:/
+
+################################################################################
+
+12) Using Ctrl+P and Ctrl+Q to see the read escape sequence, will will enable us to exit from the container without stopping the container.
+
+root@ip-172-31-14-204:~# docker ps -a
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                      PORTS               NAMES
+28f8a6a3376e        ubuntu              "/bin/bash"         3 minutes ago       Exited (0) 29 seconds ago                       laughing_nobel
+
+
+root@ip-172-31-14-204:~# docker start laughing_nobel 
+laughing_nobel
+
+root@ip-172-31-14-204:~# docker ps
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+28f8a6a3376e        ubuntu              "/bin/bash"         3 minutes ago       Up 6 seconds                            laughing_nobel
+
+
+root@ip-172-31-14-204:~# docker attach laughing_nobel 
+root@28f8a6a3376e:/# 
+root@28f8a6a3376e:/# 
+root@28f8a6a3376e:/# read escape sequence   #### use CTRL+P and CTRL+Q here
+
+root@ip-172-31-14-204:~# docker ps 
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+28f8a6a3376e        ubuntu              "/bin/bash"         4 minutes ago       Up 20 seconds                           laughing_nobel
+root@ip-172-31-14-204:~# 
+
+
+################################################################################
+
+
+13) Try running nginx container with nginx image
+root@ip-172-31-14-204:~# docker run nginx
+Unable to find image 'nginx:latest' locally
+latest: Pulling from library/nginx
+743f2d6c1f65: Pull complete 
+6bfc4ec4420a: Pull complete 
+688a776db95f: Pull complete 
+Digest: sha256:23b4dcdf0d34d4a129755fc6f52e1c6e23bb34ea011b315d87e193033bcd1b68
+Status: Downloaded newer image for nginx:latest
+
+As you can see the container run's in the foreground and busy the terminal, you need to stop the container 
+to use the terminal again.
+
+
+
+################################################################################
+
+
+14) Using the exec command to get the access of any container in which the default command is not /bin/bash
+
+root@ip-172-31-14-204:~#  docker ps
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+root@ip-172-31-14-204:~# docker ps -a 
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS                      PORTS               NAMES
+5a501b23128d        nginx               "nginx -g 'daemon of…"   3 minutes ago       Exited (0) 29 seconds ago                       heuristic_torvalds
+root@ip-172-31-14-204:~# 
+root@ip-172-31-14-204:~# docker start heuristic_torvalds 
+heuristic_torvalds
+root@ip-172-31-14-204:~# 
+root@ip-172-31-14-204:~# 
+root@ip-172-31-14-204:~# docker ps 
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS               NAMES
+5a501b23128d        nginx               "nginx -g 'daemon of…"   3 minutes ago       Up 2 seconds        80/tcp              heuristic_torvalds
+root@ip-172-31-14-204:~# 
+root@ip-172-31-14-204:~# 
+root@ip-172-31-14-204:~# docker exec -it heuristic_torvalds /bin/bash 
+root@5a501b23128d:/# 
+
+##############################################################################
+
+15) docker image prune || To remove unused Imaes from Docker
+
+
+
+***************************************************************************************************************************************************
+
+docker top containerID || With this command , we can see the top process within a container
+
+
+******************************************************************************************************************************
+
+
+need to work 
+
+root@ip-172-31-14-198:/home/ubuntu# cat Dockerfile
+FROM ubuntu
+
+MAINTAINER linuxtechlab
+
+LABEL Remarks="This is a dockerfile example for Centos system"
+
+RUN apt-get update
+
+
+ENV HOME /root
+
+WORKDIR /root
+
+ENTRYPOINT ["ping"]
+
+CMD ["google.com"]
+root@ip-172-31-14-198:/home/ubuntu#
+
